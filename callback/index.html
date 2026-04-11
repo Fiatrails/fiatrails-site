@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Complete | FiatRails</title>
+    <link rel="icon" type="image/png" href="/favicon_32x32.png">
+    <style>
+        :root {
+            --bg-dark: #0f1419;
+            --bg-card: #1a1f2e;
+            --border: #2d3748;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --blue-accent: #2962FF;
+            --blue-hover: #1e4fd8;
+            --green-success: #10b981;
+            --red-error: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px 32px;
+            text-align: center;
+        }
+
+        .logo {
+            height: 48px;
+            margin-bottom: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .icon-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--green-success);
+        }
+
+        .icon-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--red-error);
+        }
+
+        .icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .code-container {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .code-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .code-value {
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            color: var(--blue-accent);
+            word-break: break-all;
+            line-height: 1.5;
+            user-select: all;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--blue-accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-hover);
+        }
+
+        .btn-copied {
+            background: var(--green-success);
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .close-hint {
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .error-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--red-error);
+            margin-bottom: 4px;
+        }
+
+        .error-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .state-info {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .state-info code {
+            background: var(--bg-dark);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        #error-view, #success-view, #missing-view {
+            display: none;
+        }
+
+        .visible {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <img src="/logo-navy-tm.png" alt="FiatRails" class="logo">
+
+            <!-- Success View -->
+            <div id="success-view">
+                <div class="icon icon-success">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h1>Authorization Successful</h1>
+                <p class="subtitle">Copy the code below and paste it into your terminal to complete authentication.</p>
+
+                <div class="code-container">
+                    <div class="code-label">Authorization Code</div>
+                    <div class="code-value" id="auth-code"></div>
+                </div>
+
+                <button class="btn btn-primary" id="copy-btn" onclick="copyCode()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="copy-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <span id="copy-text">Copy Code</span>
+                </button>
+
+                <p class="close-hint">You can close this window after copying the code.</p>
+
+                <div class="state-info" id="state-info" style="display: none;">
+                    State: <code id="state-value"></code>
+                </div>
+            </div>
+
+            <!-- Error View -->
+            <div id="error-view">
+                <div class="icon icon-error">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <h1>Authorization Failed</h1>
+                <p class="subtitle">There was a problem completing the authorization.</p>
+
+                <div class="error-message">
+                    <div class="error-title" id="error-type"></div>
+                    <div class="error-desc" id="error-desc"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="window.close()">Close Window</button>
+                <p class="close-hint">Please try again from your terminal.</p>
+            </div>
+
+            <!-- Missing Code View -->
+            <div id="missing-view">
+                <div class="icon icon-error">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h1>No Authorization Code</h1>
+                <p class="subtitle">This page is used to handle OAuth callbacks. No authorization code was found in the URL.</p>
+
+                <button class="btn btn-primary" onclick="window.location.href='/'">Go to FiatRails</button>
+                <p class="close-hint">If you were expecting a code, please try authorizing again.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var code = params.get('code');
+            var state = params.get('state');
+            var error = params.get('error');
+            var errorDesc = params.get('error_description');
+
+            if (error) {
+                // Show error view
+                document.getElementById('error-view').classList.add('visible');
+                document.getElementById('error-type').textContent = error.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                document.getElementById('error-desc').textContent = errorDesc || 'The authorization request was denied or failed.';
+            } else if (code) {
+                // Show success view
+                document.getElementById('success-view').classList.add('visible');
+                document.getElementById('auth-code').textContent = code;
+
+                if (state) {
+                    document.getElementById('state-info').style.display = 'block';
+                    document.getElementById('state-value').textContent = state;
+                }
+            } else {
+                // Show missing code view
+                document.getElementById('missing-view').classList.add('visible');
+            }
+        })();
+
+        function copyCode() {
+            var code = document.getElementById('auth-code').textContent;
+            var btn = document.getElementById('copy-btn');
+            var text = document.getElementById('copy-text');
+
+            navigator.clipboard.writeText(code).then(function() {
+                btn.classList.add('btn-copied');
+                text.textContent = 'Copied!';
+
+                setTimeout(function() {
+                    btn.classList.remove('btn-copied');
+                    text.textContent = 'Copy Code';
+                }, 2000);
+            }).catch(function(err) {
+                // Fallback for older browsers
+                var textarea = document.createElement('textarea');
+                textarea.value = code;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                btn.classList.add('btn-copied');
+                text.textContent = 'Copied!';
+
+                setTimeout(function() {
+                    btn.classList.remove('btn-copied');
+                    text.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

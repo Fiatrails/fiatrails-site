@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- REQUIRED: Your content pipeline must set these -->
+    <title>{{POST_TITLE}} | FiatRails Blog</title>
+    <meta name="title" content="{{POST_TITLE}}">
+    <meta name="description" content="{{POST_DESCRIPTION}}">
+    <meta name="date" content="{{YYYY-MM-DD}}">
+    <meta name="product" content="{{access|settlement}}">
+    <meta name="author" content="{{AUTHOR_NAME}}">
+    <link rel="canonical" href="https://fiatrails.com/blog/{{SLUG}}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{POST_TITLE}}">
+    <meta property="og:description" content="{{POST_DESCRIPTION}}">
+    <meta property="og:url" content="https://fiatrails.com/blog/{{SLUG}}">
+    <meta property="og:site_name" content="FiatRails">
+    <meta property="og:image" content="https://fiatrails.com/logo-social.png">
+    <meta property="article:published_time" content="{{YYYY-MM-DD}}T00:00:00+00:00">
+    <meta property="article:section" content="{{Access|Settlement}}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{POST_TITLE}}">
+    <meta name="twitter:description" content="{{POST_DESCRIPTION}}">
+    <meta name="twitter:image" content="https://fiatrails.com/logo-social.png">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "{{POST_TITLE}}",
+        "description": "{{POST_DESCRIPTION}}",
+        "datePublished": "{{YYYY-MM-DD}}",
+        "dateModified": "{{YYYY-MM-DD}}",
+        "author": {
+            "@type": "Organization",
+            "name": "FiatRails",
+            "url": "https://fiatrails.com"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "FiatRails",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://fiatrails.com/logo-social.png"
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://fiatrails.com/blog/{{SLUG}}"
+        },
+        "image": "https://fiatrails.com/logo-social.png",
+        "articleSection": "{{Access|Settlement}}"
+    }
+    </script>
+
+    <!-- Favicons & Fonts -->
+    <link rel="icon" type="image/png" href="/favicon_32x32.png">
+    <link rel="alternate" type="application/rss+xml" title="FiatRails Blog" href="/blog/feed.xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8PFMKEY6TL"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-8PFMKEY6TL');</script>
+
+    <style>
+        :root{--white:#fff;--gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;--navy:#1e3a5a;--navy-dark:#0f2744;--blue-600:#2563eb;--emerald-600:#059669}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--white);color:var(--gray-800);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+        /* Navigation */
+        .nav{background:var(--white);border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
+        .nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;height:72px;display:flex;align-items:center;justify-content:space-between}
+        .nav-brand{text-decoration:none}
+        .nav-logo{height:62px;width:auto}
+        .nav-links{display:flex;align-items:center;gap:36px}
+        .nav-links a{color:var(--gray-600);text-decoration:none;font-size:14px;font-weight:500;transition:color .15s}
+        .nav-links a:hover{color:var(--gray-900)}
+        .nav-links a.active{color:var(--navy);font-weight:600}
+        .nav-cta{background:var(--navy);color:var(--white)!important;padding:10px 20px;border-radius:6px}
+        .nav-cta:hover{background:var(--navy-dark)}
+
+        /* Article */
+        .article-header{background:linear-gradient(180deg,var(--gray-50) 0%,var(--white) 100%);padding:64px 32px 32px;text-align:center}
+        .article-header h1{font-size:36px;font-weight:700;color:var(--gray-900);margin-bottom:16px;max-width:800px;margin-left:auto;margin-right:auto}
+        .article-meta{display:flex;justify-content:center;align-items:center;gap:16px;font-size:13px;color:var(--gray-400);margin-bottom:8px}
+        .article-tag{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+        .article-tag.access{background:#dbeafe;color:#1d4ed8}
+        .article-tag.settlement{background:#d1fae5;color:#065f46}
+        .breadcrumb{font-size:13px;color:var(--gray-400);margin-bottom:24px}
+        .breadcrumb a{color:var(--gray-500);text-decoration:none}
+        .breadcrumb a:hover{color:var(--navy)}
+
+        /* Article Content */
+        .article-content{max-width:720px;margin:0 auto;padding:40px 32px 80px}
+        .article-content h2{font-size:24px;font-weight:600;color:var(--gray-900);margin:40px 0 16px}
+        .article-content h3{font-size:20px;font-weight:600;color:var(--gray-900);margin:32px 0 12px}
+        .article-content p{font-size:16px;line-height:1.8;color:var(--gray-700);margin-bottom:20px}
+        .article-content ul,.article-content ol{margin:0 0 20px 24px;font-size:16px;line-height:1.8;color:var(--gray-700)}
+        .article-content li{margin-bottom:8px}
+        .article-content a{color:var(--blue-600);text-decoration:underline}
+        .article-content a:hover{color:var(--navy)}
+        .article-content blockquote{border-left:3px solid var(--navy);padding:16px 24px;margin:24px 0;background:var(--gray-50);border-radius:0 8px 8px 0;font-style:italic;color:var(--gray-600)}
+        .article-content img{max-width:100%;border-radius:8px;margin:24px 0}
+        .article-content code{background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:14px}
+        .article-content pre{background:var(--gray-900);color:var(--gray-100);padding:20px;border-radius:8px;overflow-x:auto;margin:24px 0;font-size:14px;line-height:1.6}
+        .article-content pre code{background:none;padding:0}
+        .article-content hr{border:none;border-top:1px solid var(--gray-200);margin:40px 0}
+
+        /* CTA at end of article */
+        .article-cta{max-width:720px;margin:0 auto;padding:0 32px 64px}
+        .article-cta-box{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;padding:32px;text-align:center}
+        .article-cta-box h3{font-size:20px;font-weight:600;color:var(--gray-900);margin-bottom:8px}
+        .article-cta-box p{font-size:14px;color:var(--gray-500);margin-bottom:20px}
+        .article-cta-box a{display:inline-block;background:var(--navy);color:var(--white);padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500}
+        .article-cta-box a:hover{background:var(--navy-dark)}
+
+        /* Footer */
+        .footer{background:var(--gray-900);padding:48px 32px 24px;color:var(--gray-400)}
+        .footer-inner{max-width:1200px;margin:0 auto}
+        .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:48px;margin-bottom:40px}
+        .footer-brand p{font-size:13px;line-height:1.6;margin-top:12px;color:var(--gray-500)}
+        .footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-300);margin-bottom:16px}
+        .footer-col a{display:block;font-size:13px;color:var(--gray-500);text-decoration:none;margin-bottom:10px}
+        .footer-col a:hover{color:var(--gray-300)}
+        .footer-powered{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--gray-800)}
+        .footer-bottom{padding-top:24px;display:flex;justify-content:space-between;font-size:12px}
+        .powered-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-500);display:block;margin-bottom:8px}
+        .powered-logo{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+        .powered-name{font-weight:600;color:var(--gray-300)}
+        .powered-desc{font-size:12px;color:var(--gray-500);line-height:1.5}
+
+        @media(max-width:768px){
+            .nav-links{gap:16px}
+            .article-header h1{font-size:28px}
+            .article-content{padding:24px 20px 60px}
+            .footer-grid{grid-template-columns:1fr}
+            .footer-powered{grid-template-columns:1fr}
+            .footer-bottom{flex-direction:column;gap:12px}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ NAVIGATION ═══ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand"><img src="/logo-navy-tm.png" alt="FiatRails" class="nav-logo"></a>
+            <div class="nav-links">
+                <a href="/access.html">Access</a>
+                <a href="/settlement.html">Settlement</a>
+                <a href="/blog" class="active">Blog</a>
+                <a href="/partner-portal/" class="nav-cta">Partner Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ ARTICLE HEADER ═══ -->
+    <div class="article-header">
+        <div class="breadcrumb"><a href="/">Home</a> / <a href="/blog">Blog</a> / <span>{{POST_TITLE}}</span></div>
+        <div class="article-meta">
+            <span class="article-tag {{product_lowercase}}">{{Access|Settlement}}</span>
+            <span>{{YYYY-MM-DD}}</span>
+            <span>{{AUTHOR_NAME}}</span>
+        </div>
+        <h1>{{POST_TITLE}}</h1>
+    </div>
+
+    <!-- ═══ ARTICLE CONTENT — INJECT YOUR HTML HERE ═══ -->
+    <article class="article-content">
+
+        {{BLOG_CONTENT_HTML}}
+
+    </article>
+
+    <!-- ═══ END-OF-ARTICLE CTA ═══ -->
+    <div class="article-cta">
+        <div class="article-cta-box">
+            <h3>Learn more about FiatRails</h3>
+            <p>Explore our non-custodial virtual asset infrastructure for access and settlement.</p>
+            <a href="/">Visit FiatRails</a>
+        </div>
+    </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="/logo-navy-tm.png" alt="FiatRails" style="height:42px;filter:brightness(0) invert(1);">
+                    <p>Non-custodial infrastructure enabling seamless access to virtual assets. Technology service provider — never custodying funds.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Products</h4>
+                    <a href="/access.html">Access</a>
+                    <a href="/settlement.html">Settlement</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="/#about">About</a>
+                    <a href="/blog">Blog</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <a href="https://t.me/FiatRails_Bot">Telegram</a>
+                    <a href="#">Twitter</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <a href="/terms.html">Terms of Service</a>
+                    <a href="/privacy.html">Privacy Policy</a>
+                </div>
+            </div>
+            <div class="footer-powered">
+                <div class="powered-item">
+                    <span class="powered-label">POWERED BY</span>
+                    <div class="powered-logo">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#E84142"/><path d="M21.5 21H18.5L16 16.5L13.5 21H10.5L16 11L21.5 21Z" fill="white"/></svg>
+                        <span class="powered-name">Avalanche</span>
+                    </div>
+                    <p class="powered-desc">FiatRails is built on Avalanche infrastructure. Sub-second finality, low fees, and enterprise-grade reliability.</p>
+                </div>
+                <div class="powered-item">
+                    <span class="powered-label">BUILT BY</span>
+                    <div class="powered-logo">
+                        <a href="https://digitalyzelabs.com" target="_blank" rel="noopener noreferrer">
+                            <img src="/digitalyze-labs-logo.png" alt="Digitalyze Labs" style="height:28px;width:auto;">
+                        </a>
+                    </div>
+                    <p class="powered-desc">Enterprise blockchain development and fintech infrastructure specialists.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2025-2026 FiatRails. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

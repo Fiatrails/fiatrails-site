@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiatRails Access - M-PESA Demo</title>
+    <link rel="icon" type="image/png" href="favicon_32x32.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8PFMKEY6TL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-8PFMKEY6TL');
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e3a5a 0%, #0f2744 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        /* Top bar */
+        .top-bar {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .top-bar a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 500; }
+        .top-bar a:hover { color: white; }
+        .top-bar-logo { height: 36px; filter: brightness(0) invert(1); }
+
+        /* Layout */
+        .demo-layout {
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Info panel */
+        .info-panel {
+            max-width: 380px;
+            padding-top: 40px;
+        }
+        .info-panel h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+        .info-panel h1 span { color: #64ffda; }
+        .info-panel p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .info-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        .info-features li {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+        }
+        .info-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #64ffda;
+            font-weight: 700;
+        }
+        .info-badge {
+            display: inline-block;
+            background: rgba(100, 255, 218, 0.15);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .info-links { display: flex; gap: 12px; margin-top: 8px; }
+        .info-link {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .info-link:hover { color: white; border-color: rgba(255,255,255,0.4); }
+
+        /* Phone */
+        .phone-container {
+            width: 375px;
+            min-width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 44px;
+            padding: 16px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            position: relative;
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #0f0f23;
+            border-radius: 32px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .status-bar {
+            height: 44px;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Shared screen styles */
+        .screen { display: none; flex-direction: column; height: 100%; }
+        .screen.active { display: flex; }
+        .screen-header {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        .screen-header h2 { font-size: 20px; font-weight: 700; }
+        .screen-header p { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+        .screen-body { flex: 1; padding: 20px; overflow-y: auto; }
+
+        /* Screen 1: Home */
+        .home-balance {
+            background: rgba(100, 255, 218, 0.08);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .home-balance-label { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; }
+        .home-balance-amount { font-size: 36px; font-weight: 700; color: #64ffda; margin: 8px 0 4px; }
+        .home-balance-sub { font-size: 13px; color: rgba(255,255,255,0.5); }
+        .home-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .home-action {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+        .home-action:hover { background: rgba(100, 255, 218, 0.1); border-color: rgba(100, 255, 218, 0.3); }
+        .home-action-icon { font-size: 28px; margin-bottom: 8px; }
+        .home-action-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .home-action-desc { font-size: 11px; color: rgba(255,255,255,0.5); }
+        .home-action.primary { background: rgba(100, 255, 218, 0.1); border-color: rgba(100, 255, 218, 0.3); }
+
+        /* Screen 2: Country select */
+        .country-list { display: flex; flex-direction: column; gap: 10px; }
+        .country-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .country-item:hover { background: rgba(100, 255, 218, 0.1); border-color: rgba(100, 255, 218, 0.3); }
+        .country-flag { font-size: 32px; }
+        .country-info { flex: 1; }
+        .country-name { font-size: 15px; font-weight: 600; }
+        .country-gateway { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+        .country-arrow { color: rgba(255,255,255,0.3); font-size: 18px; }
+
+        /* Screen 3: Payment form */
+        .back-btn {
+            background: none;
+            border: none;
+            color: #64ffda;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+        }
+        .payment-country {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .payment-country-flag { font-size: 36px; }
+        .payment-country-name { font-size: 16px; font-weight: 600; }
+        .payment-country-gw { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .form-group { margin-bottom: 16px; }
+        .form-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; display: block; }
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .form-input:focus { border-color: #64ffda; }
+        .form-input::placeholder { color: rgba(255,255,255,0.3); }
+        .conversion-box {
+            background: rgba(100, 255, 218, 0.08);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .conversion-label { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .conversion-amount { font-size: 24px; font-weight: 700; color: #64ffda; margin: 6px 0 4px; }
+        .conversion-sub { font-size: 11px; color: rgba(100, 255, 218, 0.7); }
+        .demo-hint {
+            background: rgba(100, 255, 218, 0.08);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .demo-hint-title { font-size: 12px; font-weight: 600; color: #64ffda; margin-bottom: 4px; }
+        .demo-hint-text { font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+        .pay-btn {
+            width: 100%;
+            background: #64ffda;
+            color: #0f0f23;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s;
+        }
+        .pay-btn:hover { opacity: 0.9; }
+        .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Screen 4: Processing */
+        .processing-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .step-list {
+            width: 100%;
+            max-width: 280px;
+            text-align: left;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            opacity: 0.3;
+            transition: opacity 0.4s;
+        }
+        .step.active { opacity: 1; }
+        .step.done { opacity: 0.7; }
+        .step-icon { font-size: 20px; margin-top: 1px; }
+        .step-text { font-size: 14px; line-height: 1.5; }
+        .step-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(100, 255, 218, 0.2);
+            border-top-color: #64ffda;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        /* Screen 5: Success */
+        .success-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .success-check {
+            width: 72px;
+            height: 72px;
+            background: rgba(100, 255, 218, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .success-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .success-amount { font-size: 32px; font-weight: 700; color: #64ffda; margin-bottom: 4px; }
+        .success-token { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 24px; }
+        .success-details {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .success-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .success-row-label { color: rgba(255,255,255,0.5); }
+        .success-row-value { color: white; font-weight: 500; font-family: monospace; font-size: 12px; }
+        .success-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+        .success-btn-primary { background: #64ffda; color: #0f0f23; }
+        .success-btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Bottom nav */
+        .bottom-nav {
+            height: 70px;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        .nav-item { text-align: center; color: rgba(255,255,255,0.4); font-size: 10px; cursor: pointer; }
+        .nav-item.active { color: #64ffda; }
+        .nav-item-icon { font-size: 20px; margin-bottom: 2px; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .demo-layout { flex-direction: column; align-items: center; }
+            .info-panel { max-width: 375px; padding-top: 0; text-align: center; }
+            .info-features { text-align: left; }
+            .info-links { justify-content: center; }
+        }
+        @media (max-width: 420px) {
+            body { padding: 10px; }
+            .phone-container { width: 100%; min-width: unset; height: 700px; border-radius: 32px; padding: 10px; }
+            .phone-screen { border-radius: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="/">
+            <img src="logo-navy-tm.png" alt="FiatRails" class="top-bar-logo">
+        </a>
+        <div style="display:flex;gap:24px;">
+            <a href="/access.html">Access</a>
+            <a href="https://dex.fiatrails.com" target="_blank">DEX</a>
+            <a href="/">Home</a>
+        </div>
+    </div>
+
+    <div class="demo-layout">
+        <div class="info-panel">
+            <div class="info-badge">Interactive Demo</div>
+            <h1>M-PESA to <span>On-Chain</span></h1>
+            <p>See how FiatRails Access enables users to on-ramp from mobile money to crypto tokens on Avalanche — in seconds, non-custodially.</p>
+            <ul class="info-features">
+                <li>M-PESA STK Push initiated to user's phone</li>
+                <li>Payment confirmed via Daraja webhook</li>
+                <li>Claim tokens (cKES) minted on Avalanche</li>
+                <li>Non-custodial — FiatRails never holds funds</li>
+                <li>KYC inherited from mobile money provider</li>
+                <li>Multi-country: Kenya, Ghana, Tanzania, Nigeria</li>
+            </ul>
+            <div class="info-links">
+                <a href="/access.html" class="info-link">Learn More</a>
+                <a href="/access.html#api" class="info-link">Developer API</a>
+            </div>
+        </div>
+
+        <div class="phone-container">
+            <div class="phone-screen">
+                <div class="status-bar">
+                    <span>9:41</span>
+                    <span style="font-size:12px;">FiatRails</span>
+                    <span style="font-size:12px;">LTE 🔋</span>
+                </div>
+
+                <div class="screen-content">
+                    <!-- Screen 1: Home -->
+                    <div class="screen active" id="screen-home">
+                        <div class="screen-header">
+                            <h2>FiatRails</h2>
+                            <p>Mobile money meets DeFi</p>
+                        </div>
+                        <div class="screen-body">
+                            <div class="home-balance">
+                                <div class="home-balance-label">Total Balance</div>
+                                <div class="home-balance-amount" id="totalBalance">$0.00</div>
+                                <div class="home-balance-sub">0 cKES on Avalanche</div>
+                            </div>
+                            <div class="home-actions">
+                                <div class="home-action primary" onclick="showScreen('country')">
+                                    <div class="home-action-icon">📲</div>
+                                    <div class="home-action-title">Buy Crypto</div>
+                                    <div class="home-action-desc">Via M-PESA</div>
+                                </div>
+                                <div class="home-action" onclick="showScreen('country')">
+                                    <div class="home-action-icon">💸</div>
+                                    <div class="home-action-title">Send Money</div>
+                                    <div class="home-action-desc">Cross-border</div>
+                                </div>
+                                <div class="home-action">
+                                    <div class="home-action-icon">🔄</div>
+                                    <div class="home-action-title">Swap</div>
+                                    <div class="home-action-desc">Hub DEX</div>
+                                </div>
+                                <div class="home-action">
+                                    <div class="home-action-icon">🏪</div>
+                                    <div class="home-action-title">Merchant</div>
+                                    <div class="home-action-desc">Accept crypto</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen 2: Country Select -->
+                    <div class="screen" id="screen-country">
+                        <div class="screen-header">
+                            <button class="back-btn" onclick="showScreen('home')">← Back</button>
+                            <h2 style="margin-top:8px;">Select Country</h2>
+                            <p>Choose your mobile money provider</p>
+                        </div>
+                        <div class="screen-body">
+                            <div class="country-list">
+                                <div class="country-item" onclick="selectCountry('kenya')">
+                                    <span class="country-flag">🇰🇪</span>
+                                    <div class="country-info">
+                                        <div class="country-name">Kenya</div>
+                                        <div class="country-gateway">M-PESA Safaricom · KES</div>
+                                    </div>
+                                    <span class="country-arrow">→</span>
+                                </div>
+                                <div class="country-item" onclick="selectCountry('ghana')">
+                                    <span class="country-flag">🇬🇭</span>
+                                    <div class="country-info">
+                                        <div class="country-name">Ghana</div>
+                                        <div class="country-gateway">M-PESA OpenAPI · GHS</div>
+                                    </div>
+                                    <span class="country-arrow">→</span>
+                                </div>
+                                <div class="country-item" onclick="selectCountry('tanzania')">
+                                    <span class="country-flag">🇹🇿</span>
+                                    <div class="country-info">
+                                        <div class="country-name">Tanzania</div>
+                                        <div class="country-gateway">M-PESA Vodacom · TZS</div>
+                                    </div>
+                                    <span class="country-arrow">→</span>
+                                </div>
+                                <div class="country-item" onclick="selectCountry('nigeria')">
+                                    <span class="country-flag">🇳🇬</span>
+                                    <div class="country-info">
+                                        <div class="country-name">Nigeria</div>
+                                        <div class="country-gateway">MTN Mobile Money · NGN</div>
+                                    </div>
+                                    <span class="country-arrow">→</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen 3: Payment Form -->
+                    <div class="screen" id="screen-payment">
+                        <div class="screen-header">
+                            <button class="back-btn" onclick="showScreen('country')">← Back</button>
+                            <h2 style="margin-top:8px;">Buy Crypto</h2>
+                        </div>
+                        <div class="screen-body">
+                            <div class="payment-country">
+                                <span class="payment-country-flag" id="payFlag">🇰🇪</span>
+                                <div>
+                                    <div class="payment-country-name" id="payCountry">Kenya</div>
+                                    <div class="payment-country-gw" id="payGateway">via M-PESA Safaricom</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" id="amountLabel">Amount (KES)</label>
+                                <input class="form-input" type="number" id="amountInput" placeholder="1000" value="1000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input class="form-input" type="tel" id="phoneInput" placeholder="+254701234567" value="+254701234567">
+                            </div>
+                            <div class="conversion-box" id="conversionBox">
+                                <div class="conversion-label">You will receive</div>
+                                <div class="conversion-amount" id="conversionAmount">1,000.00 cKES</div>
+                                <div class="conversion-sub">Claim tokens on Avalanche</div>
+                            </div>
+                            <div class="demo-hint">
+                                <div class="demo-hint-title">Demo Mode</div>
+                                <div class="demo-hint-text">This simulates the M-PESA STK Push flow. In production, a payment prompt appears on the user's phone via Safaricom Daraja API.</div>
+                            </div>
+                            <button class="pay-btn" id="payBtn" onclick="initiatePayment()">
+                                Pay with M-PESA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Screen 4: Processing -->
+                    <div class="screen" id="screen-processing">
+                        <div class="processing-center">
+                            <div class="spinner"></div>
+                            <div class="step-list">
+                                <div class="step" id="step1">
+                                    <span class="step-icon">📲</span>
+                                    <div>
+                                        <div class="step-text">STK Push sent to phone</div>
+                                        <div class="step-sub">Awaiting M-PESA confirmation...</div>
+                                    </div>
+                                </div>
+                                <div class="step" id="step2">
+                                    <span class="step-icon">✅</span>
+                                    <div>
+                                        <div class="step-text">Payment confirmed</div>
+                                        <div class="step-sub" id="step2sub">M-PESA receipt received</div>
+                                    </div>
+                                </div>
+                                <div class="step" id="step3">
+                                    <span class="step-icon">⛓️</span>
+                                    <div>
+                                        <div class="step-text">Minting claim tokens</div>
+                                        <div class="step-sub">Broadcasting to Avalanche...</div>
+                                    </div>
+                                </div>
+                                <div class="step" id="step4">
+                                    <span class="step-icon">🎉</span>
+                                    <div>
+                                        <div class="step-text">Tokens delivered</div>
+                                        <div class="step-sub" id="step4sub">Confirmed on-chain</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen 5: Success -->
+                    <div class="screen" id="screen-success">
+                        <div class="success-center">
+                            <div class="success-check">✓</div>
+                            <div class="success-title">Payment Complete</div>
+                            <div class="success-amount" id="successAmount">1,000.00 cKES</div>
+                            <div class="success-token">Minted to your wallet on Avalanche</div>
+                            <div class="success-details">
+                                <div class="success-row">
+                                    <span class="success-row-label">M-PESA Receipt</span>
+                                    <span class="success-row-value" id="receiptId">SHK3F7J2PQ</span>
+                                </div>
+                                <div class="success-row">
+                                    <span class="success-row-label">Tx Hash</span>
+                                    <span class="success-row-value" id="txHash">0x7a3f...c821</span>
+                                </div>
+                                <div class="success-row">
+                                    <span class="success-row-label">Block</span>
+                                    <span class="success-row-value" id="blockNum">#4,291,037</span>
+                                </div>
+                                <div class="success-row">
+                                    <span class="success-row-label">Network</span>
+                                    <span class="success-row-value">Avalanche</span>
+                                </div>
+                                <div class="success-row">
+                                    <span class="success-row-label">Finality</span>
+                                    <span class="success-row-value">< 1 second</span>
+                                </div>
+                            </div>
+                            <button class="success-btn success-btn-primary" onclick="resetDemo()">Make Another Payment</button>
+                            <button class="success-btn success-btn-secondary" onclick="showScreen('home'); updateBalance();">View Wallet</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-nav">
+                    <div class="nav-item active" onclick="showScreen('home')">
+                        <div class="nav-item-icon">🏠</div>Home
+                    </div>
+                    <div class="nav-item" onclick="showScreen('country')">
+                        <div class="nav-item-icon">💳</div>Buy
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-item-icon">🔄</div>Swap
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-item-icon">⚙️</div>Settings
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const countries = {
+            kenya:    { flag: '🇰🇪', name: 'Kenya',    currency: 'KES', gateway: 'M-PESA Safaricom', token: 'cKES', prefix: '+254', testPhone: '+254701234567', sampleAmount: '1000', rate: 129.50 },
+            ghana:    { flag: '🇬🇭', name: 'Ghana',    currency: 'GHS', gateway: 'M-PESA OpenAPI',   token: 'cGHS', prefix: '+233', testPhone: '+233241234567', sampleAmount: '50',   rate: 15.80 },
+            tanzania: { flag: '🇹🇿', name: 'Tanzania', currency: 'TZS', gateway: 'M-PESA Vodacom',   token: 'cTZS', prefix: '+255', testPhone: '+255621234567', sampleAmount: '50000', rate: 2650.00 },
+            nigeria:  { flag: '🇳🇬', name: 'Nigeria',  currency: 'NGN', gateway: 'MTN Mobile Money',  token: 'cNGN', prefix: '+234', testPhone: '+2348031234567', sampleAmount: '5000', rate: 1620.00 }
+        };
+
+        let selectedCountryKey = null;
+        let totalBalanceUSD = 0;
+        let lastToken = '';
+        let lastAmount = 0;
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + id).classList.add('active');
+        }
+
+        function selectCountry(key) {
+            selectedCountryKey = key;
+            const c = countries[key];
+            document.getElementById('payFlag').textContent = c.flag;
+            document.getElementById('payCountry').textContent = c.name;
+            document.getElementById('payGateway').textContent = 'via ' + c.gateway;
+            document.getElementById('amountLabel').textContent = 'Amount (' + c.currency + ')';
+            document.getElementById('amountInput').value = c.sampleAmount;
+            document.getElementById('amountInput').placeholder = c.sampleAmount;
+            document.getElementById('phoneInput').value = c.testPhone;
+            document.getElementById('phoneInput').placeholder = c.prefix + 'XXXXXXXXX';
+            updateConversion();
+            showScreen('payment');
+        }
+
+        function updateConversion() {
+            if (!selectedCountryKey) return;
+            const c = countries[selectedCountryKey];
+            const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+            document.getElementById('conversionAmount').textContent = amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' ' + c.token;
+        }
+
+        document.getElementById('amountInput').addEventListener('input', updateConversion);
+
+        function generateReceipt() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let r = '';
+            for (let i = 0; i < 10; i++) r += chars[Math.floor(Math.random() * chars.length)];
+            return r;
+        }
+
+        function generateTxHash() {
+            const hex = '0123456789abcdef';
+            let h = '0x';
+            for (let i = 0; i < 64; i++) h += hex[Math.floor(Math.random() * 16)];
+            return h.slice(0, 6) + '...' + h.slice(-4);
+        }
+
+        function initiatePayment() {
+            const c = countries[selectedCountryKey];
+            const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+            if (amount <= 0) return;
+
+            lastToken = c.token;
+            lastAmount = amount;
+
+            // Reset steps
+            document.querySelectorAll('.step').forEach(s => { s.classList.remove('active', 'done'); });
+
+            showScreen('processing');
+
+            // Step 1: STK Push
+            setTimeout(() => { document.getElementById('step1').classList.add('active'); }, 300);
+
+            // Step 2: Payment confirmed
+            setTimeout(() => {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step1').classList.add('done');
+                document.getElementById('step2').classList.add('active');
+                const receipt = generateReceipt();
+                document.getElementById('step2sub').textContent = 'Receipt: ' + receipt;
+                document.getElementById('receiptId').textContent = receipt;
+            }, 2500);
+
+            // Step 3: Minting
+            setTimeout(() => {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step2').classList.add('done');
+                document.getElementById('step3').classList.add('active');
+            }, 4000);
+
+            // Step 4: Delivered
+            setTimeout(() => {
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step3').classList.add('done');
+                document.getElementById('step4').classList.add('active');
+                const txHash = generateTxHash();
+                const block = Math.floor(4000000 + Math.random() * 500000);
+                document.getElementById('step4sub').textContent = 'Block #' + block.toLocaleString();
+                document.getElementById('txHash').textContent = txHash;
+                document.getElementById('blockNum').textContent = '#' + block.toLocaleString();
+            }, 5500);
+
+            // Show success
+            setTimeout(() => {
+                document.getElementById('successAmount').textContent = amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' ' + c.token;
+                totalBalanceUSD += amount / c.rate;
+                showScreen('success');
+            }, 7000);
+        }
+
+        function updateBalance() {
+            document.getElementById('totalBalance').textContent = '$' + totalBalanceUSD.toFixed(2);
+            if (lastToken && lastAmount > 0) {
+                document.querySelector('.home-balance-sub').textContent = lastAmount.toLocaleString() + ' ' + lastToken + ' on Avalanche';
+            }
+        }
+
+        function resetDemo() {
+            showScreen('country');
+        }
+    </script>
+</body>
+</html>
